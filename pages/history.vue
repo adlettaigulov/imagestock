@@ -22,10 +22,14 @@ export default {
     getSearchHistory() {
       let getSes = JSON.parse(localStorage.getItem("searchHistoryResults"));
       this.searchResults = getSes;
+    },
+    changePadding() {
+      document.querySelector(".navbar").style.paddingTop = "20px";
     }
   },
-  created() {
+  mounted() {
     this.getSearchHistory();
+    this.changePadding();
   }
 };
 </script>

@@ -1,39 +1,45 @@
 <template>
   <div class="home">
     <div class="second-header">
-      <div class="search">
-        <input
-          class="search-bar"
-          type="text"
-          placeholder="Поиск"
-          @input="debounceSearch"
-        />
-        <hr />
-      </div>
-
-      <ul class="topics">
-        <li v-for="topic in topics" :key="topic.id">
-          <a @click="showTopicImages(topic.slug)"
-            ><span>{{ topic.title }}</span></a
-          >
-        </li>
-      </ul>
-    </div>
-
-    <div class="variations">
-      <img src="/images/icons/block.svg" @click="gridColumn" />
-      <img src="/images/icons/grid.svg" @click="gridRows" />
-    </div>
-
-    <div class="grid">
-      <figure class="item" v-for="image in images" :key="image.id">
-        <div class="cover">
-          <button class="btn btn-default" @click="likePhoto()">
-            <img src="/images/icons/favourite.svg" alt="" />
-          </button>
+      <div class="container">
+        <!-- Отлаженный поиск (1 секунда) -->
+        <div class="search">
+          <input
+            class="search-bar"
+            type="text"
+            placeholder="Поиск"
+            @input="debounceSearch"
+          />
+          <hr />
         </div>
-        <img class="grid-image" :src="image.urls.full" @click="getPhoto()" />
-      </figure>
+        <!-- Отображение списка тематик -->
+        <ul class="topics">
+          <li v-for="topic in topics" :key="topic.id">
+            <a @click="showTopicImages(topic.slug)"
+              ><span>{{ topic.title }}</span></a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Изменение способа отображения изображений -->
+      <div class="variations">
+        <img src="/images/icons/block.svg" @click="gridColumn" />
+        <img src="/images/icons/grid.svg" @click="gridRows" />
+      </div>
+      <!-- Сетка из фотографий -->
+      <div class="grid">
+        <figure class="item" v-for="image in images" :key="image.id">
+          <div class="cover">
+            <button class="btn btn-default" @click="likePhoto()">
+              <img src="/images/icons/favourite.svg" alt="" />
+            </button>
+          </div>
+          <img class="grid-image" :src="image.urls.full" @click="getPhoto" />
+        </figure>
+      </div>
     </div>
   </div>
 </template>
@@ -75,39 +81,26 @@ export default {
           console.log("error", err);
         });
     },
-    // Получение одной фотографии
-    // P.s. пока не могу додуматься как передать одну фотографию и привязать к странице
-    // Пока пришло в голову только с помощью event.target вытащить полностью тег img и перенести на страницу
+    // Получение URL фотографии и добавление в localStorage
     getPhoto() {
-      console.log(event.target);
-      // fetch(this.getPhotosUrl + `/${id}` + "?client_id=" + this.accessKey)
-      //   .then(response => response.json())
-      //   .then(json => {
-      //     console.log(json);
-      //     this.$router.go("/photopage");
-      //     this.$router.push({
-      //       name: "photopage",
-      //       params: { imageData: "image.urls.full" }
-      //     });
-      //     location.href = `photopage`;
-      //   });
+      console.log(event.target.src);
+      let photoSrc = event.target.src;
+      let photo = !!localStorage.getItem("photo")
+        ? JSON.parse(localStorage.getItem("photo"))
+        : [];
+      photo.push(photoSrc);
+      localStorage.setItem("photo", JSON.stringify(photo));
+      location.href = `photo`;
     },
+    // Добавление фотографии в избранное
     likePhoto() {
       let likedPhoto = event.currentTarget.parentElement.nextElementSibling;
-      let likedPhotoLink = likedPhoto.src;
-      console.log(likedPhotoLink);
+      let likedPhotoUrl = likedPhoto.src;
       let likedPhotos = !!localStorage.getItem("likedPhotosList")
         ? JSON.parse(localStorage.getItem("likedPhotosList"))
         : [];
-      likedPhotos.push(likedPhotoLink);
+      likedPhotos.push(likedPhotoUrl);
       localStorage.setItem("likedPhotosList", JSON.stringify(likedPhotos));
-      let likedP = JSON.parse(localStorage.getItem("likedPhotosList"));
-      console.log(likedP);
-      // fetch(this.getPhotosUrl + `/${id}/like` + "?client_id=" + this.accessKey)
-      //   .then(response => response.json())
-      //   .then(json => {
-      //     console.log(json);
-      //   });
     },
     // При клике показывать фотографии данной тематики
     showTopicImages(slug) {
@@ -157,7 +150,7 @@ export default {
       }, 1000);
     }
   },
-  created() {
+  mounted() {
     this.getGrid();
     this.getTopics();
   }
@@ -165,11 +158,48 @@ export default {
 </script>
 
 <style>
+/* Меню */
+.navbar {
+  padding-top: 90px;
+}
+.second-header {
+  background: #000;
+  color: #fff;
+  overflow: hidden;
+}
+.topics {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  list-style-type: none;
+  width: 100%;
+  text-align: center;
+  margin: 30px 0 90px 0;
+  font-family: "SF UI Display Light";
+}
+.topics li {
+  margin-right: 20px;
+  font-size: 18px;
+}
+.topics li a {
+  cursor: pointer;
+}
+hr {
+  width: 80%;
+  margin: 0 auto;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 1) 49%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* Заголовки страниц */
 .title {
   padding-top: 110px;
   text-align: center;
 }
-
 .item {
   position: relative;
 }
@@ -183,11 +213,12 @@ export default {
 .item:hover .cover {
   display: block;
 }
-
 .btn-default {
   padding: 5px;
   margin: 10px 0 0 15px;
 }
+
+/* Поиск */
 .search {
   clear: both;
 }
@@ -200,6 +231,17 @@ export default {
   margin: 0 auto;
   background: #000;
   color: #fff;
+}
+.search input:focus::placeholder {
+  opacity: 0;
+}
+
+/* Сетка */
+.grid {
+  column-count: 3;
+  column-gap: 27px;
+  max-width: 1440px;
+  margin: 0 auto;
 }
 figure img {
   max-width: 100%;
@@ -218,12 +260,8 @@ figure > img {
   grid-column: 1;
   cursor: pointer;
 }
-.grid {
-  column-count: 3;
-  column-gap: 27px;
-  max-width: 1440px;
-  margin: 0 auto;
-}
+
+/* Кнопки переключения стиля отображения */
 .variations {
   margin: 72px 0;
   text-align: center;
@@ -234,38 +272,5 @@ figure > img {
 .variations img:hover {
   background: #eee;
   cursor: pointer;
-}
-.second-header {
-  background: #000;
-  color: #fff;
-  overflow: hidden;
-}
-.topics {
-  list-style-type: none;
-  margin: 0 auto;
-  width: 100%;
-  max-width: 1200px;
-  text-align: center;
-  margin-top: 30px;
-  margin-bottom: 90px;
-  font-family: "SF UI Display Light";
-}
-.topics li {
-  float: left;
-  margin-right: 20px;
-  font-size: 18px;
-}
-.topics li a {
-  cursor: pointer;
-}
-hr {
-  width: 80%;
-  margin: 0 auto;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 1) 49%,
-    rgba(255, 255, 255, 0) 100%
-  );
 }
 </style>

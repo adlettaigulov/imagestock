@@ -1,29 +1,34 @@
 <template>
   <header class="navbar">
-    <ul class="logo">
-      <li>
-        <NuxtLink to="/"
-          ><img src="/images/logo.svg" alt="" /> ImageStock</NuxtLink
-        >
-      </li>
-    </ul>
+    <div class="container">
+      <ul class="logo">
+        <li>
+          <NuxtLink to="/"><img src="/images/logo.svg" /> ImageStock</NuxtLink>
+        </li>
+      </ul>
 
-    <ul class="nav-right">
-      <li>
-        <NuxtLink to="favourites"
-          ><img src="/images/icons/favourite.svg" alt="" /> Избранное
-        </NuxtLink>
-      </li>
-      <li>
-        <NuxtLink to="history"
-          ><img src="/images/icons/history.svg" alt="" /> История поиска
-        </NuxtLink>
-      </li>
-    </ul>
+      <ul class="nav-right">
+        <li>
+          <NuxtLink to="favourites"
+            ><img src="/images/icons/favourite.svg" /> Избранное
+          </NuxtLink>
+        </li>
+        <li>
+          <NuxtLink to="history"
+            ><img src="/images/icons/history.svg" /> История поиска
+          </NuxtLink>
+        </li>
+      </ul>
+    </div>
   </header>
 </template>
 
+<script>
+export default {};
+</script>
+
 <style>
+/* Меню */
 .navbar {
   background: #000;
   color: #fff;
